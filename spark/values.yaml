@@ -72,7 +72,7 @@ networkPolicy:
 Zeppelin:
   Name: zeppelin
   Image: "apache/zeppelin"
-  ImageTag: "0.7.3"
+  ImageTag: "0.8.2"
   Replicas: 1
   Component: "zeppelin"
   Cpu: "100m"
