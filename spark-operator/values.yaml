@@ -1,0 +1,122 @@
+Spark:
+  Path: /spark
+
+namespace: spark
+
+networkPolicy:
+  enabled: true
+
+crd:
+  install: true
+
+rbac:
+  create: true
+  name: spark-opeartor
+
+serviceAccount:
+  create: true
+  name: spark-operator
+
+Master:
+  Component: spark-master
+  ContainerPort: 7077
+  Cpu: 100m
+  Image: yobitel/spark
+  ImageTag: 2.4.5
+  Memory: 512Mi
+  Name: master
+  Replicas: 1
+  ServicePort: 7077
+  ServiceType: LoadBalancer
+
+WebUi:
+  ContainerPort: 8080
+  Name: webui
+  ServicePort: 8080
+
+Worker:
+  Autoscaling:
+    Enabled: true
+  Component: spark-worker
+  ContainerPort: 8081
+  Cpu: 100m
+  CpuTargetPercentage: 50
+  Image: yobitel/spark
+  ImageTag: 2.4.5
+  Memory: 512Mi
+  Name: worker
+  Replicas: 3
+  ReplicasMax: 10
+
+Zeppelin:
+  Component: zeppelin
+  ContainerPort: 8080
+  Cpu: 100m
+  Image: apache/zeppelin
+  ImageTag: 0.7.3
+  Ingress:
+    Enabled: false
+    Path: /
+    Tls: []
+  Name: zeppelin
+  Persistence:
+    Config:
+      AccessMode: ReadWriteOnce
+      Enabled: true
+      Size: 30Gi
+      StorageClass: gp2
+  Replicas: 1
+  ServicePort: 8080
+  ServiceType: LoadBalancer
+
+backup:
+  annotations:
+    iam.amazonaws.com/role: spark
+  componentName: backup
+  destination: s3://spark-data/backup
+  enabled: true
+  env:
+  - name: AWS_REGION
+    value: us-east-1
+  existingSecret: {}
+  extraArgs: []
+  image:
+    repository: maorfr/kube-tasks
+    tag: 0.2.0
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 1
+      memory: 1Gi
+  schedule: '*/5 * * * *'
+
+checkDeprecation: true
+
+livenessProbe:
+  enabled: true
+  failureThreshold: 3
+  httpGet:
+    path: /api/health
+    port: 8080
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+readinessProbe:
+  enabled: true
+  failureThreshold: 3
+  httpGet:
+    path: /api/health
+    port: 8080
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+
+
+
+
+
+
